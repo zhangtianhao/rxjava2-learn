@@ -3,12 +3,8 @@ package cn.yrshiben.rxjava2.rxjava2learn.operators;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 /**
  * @author zhangbin
@@ -18,113 +14,48 @@ import java.util.List;
 public class HelloWorld {
 
     public static void main(String[] args) {
-        Observable.create(new ObservableOnSubscribe<String>() {
+        // RxJava2 的使用分为三步
+        // 1、创建 Observable
+        Observable<String> observable = Observable.create(new ObservableOnSubscribe<String>() {
             @Override
             public void subscribe(ObservableEmitter<String> emitter) throws Exception {
                 emitter.onNext("hello world");
-            }
-        }).subscribe(new Consumer<String>() {
-            @Override
-            public void accept(String s) throws Exception {
-                System.out.println(s);
+                emitter.onComplete();
             }
         });
-
-        System.out.println("======================");
-        Observable.create(new ObservableOnSubscribe<String>() {
+        // 2、创建 Observer
+        Observer<String> observer = new Observer<String>() {
             @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
-                emitter.onNext("hello world");
+            public void onSubscribe(Disposable d) {
+                System.out.println("onSubscribe 执行");
             }
-        }).subscribe(new Consumer<String>() {
+
             @Override
-            public void accept(String s) throws Exception {
-                System.out.println(s);
+            public void onNext(String s) {
+                System.out.println("onNext 执行，参数：" + s);
             }
-        }, new Consumer<Throwable>() {
+
             @Override
-            public void accept(Throwable throwable) throws Exception {
-
+            public void onError(Throwable e) {
+                System.out.println(e.getMessage());
             }
-        }, new Action() {
+
             @Override
-            public void run() throws Exception {
-                System.out.println("完成");
+            public void onComplete() {
+                System.out.println("onComplete 执行。");
             }
-        });
+        };
+        // 3、使用 subscribe 进行订阅
+        observable.subscribe(observer);
 
-        System.out.println("======================");
-        Observable.just("hello world")
-                .subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        System.out.println(s);
-                    }
-                });
-
-        System.out.println("======================");
-        Observable.just("hello world")
-                .subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        System.out.println(s);
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-
-                    }
-                }, new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        System.out.println("完成");
-                    }
-                });
-
-        System.out.println("======================");
-        Observable
-                .create((ObservableOnSubscribe<List<Integer>>) emitter -> {
-                    ArrayList<Integer> list = new ArrayList<>();
-                    System.out.println("&&&&&&&&000");
-                    list.add(1);
-                    System.out.println("&&&&&&&&111");
-                    list.add(2);
-                    System.out.println("&&&&&&&&222");
-                    list.add(3);
-                    System.out.println("&&&&&&&&333");
-                    list.add(4);
-                    System.out.println("&&&&&&&&444");
-                    list.add(5);
-                    System.out.println("&&&&&&&&555");
-                    list.add(6);
-                    System.out.println("&&&&&&&&666");
-                    list.add(7);
-                    System.out.println("&&&&&&&&777");
-                    emitter.onNext(list);
-                })
-                .flatMap(list -> Observable.fromIterable(list))
-                .flatMap(i -> {
-                    System.out.println(i);
-                    return Observable
-                            .just(i)
-                            .map(integer -> {
-                                System.out.println(integer + "A");
-                                return integer + 1;
-                            })
-                            .takeWhile(integer -> integer < 5);
-                })
-                .subscribe(integer -> System.out.println(integer));
-
-        System.out.println("======================");
-        Observable<Integer> just = Observable.just(1, 2, 3, 4, 5);
-        just.all(i -> i < 6).subscribe(i -> System.out.println(i));
-        List<Integer> list = new ArrayList<>();
-        just.takeWhile(i -> i < 3).subscribe(i -> list.add(i));
-        System.out.println(list);
-
-        List<BigDecimal> bigDecimals = new ArrayList<>();
-        BigDecimal value = bigDecimals.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
-        System.out.println(value);
-
+        // 三步合并在一起,下面这些代码等同于上面的代码
+        Observable.create((ObservableOnSubscribe<String>) emitter -> {
+            emitter.onNext("hello world");
+            emitter.onComplete();
+        }).subscribe(s -> System.out.println("onNext 执行，参数：" + s),
+                throwable -> System.out.println(throwable.getMessage()),
+                () -> System.out.println("onComplete 执行。"),
+                disposable -> System.out.println("onSubscribe 执行")
+        );
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.jackson.JacksonConverterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * @author zhangbin
@@ -29,7 +29,7 @@ public class BlockChairExplorerConfig {
                 .client(okHttpClient)
                 // 指定使用 RxJava
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(JacksonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
                 .build().create(BlockChairExplorerApi.class);
     }
 }
