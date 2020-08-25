@@ -1,9 +1,6 @@
 package cn.yrshiben.rxjava2.rxjava2learn.operators.create;
 
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import io.reactivex.Single;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +26,20 @@ public class FromDemo {
                         () -> System.out.println("onComplete 执行。"),
                         disposable -> System.out.println("onSubscribe 执行")
                 );
+        System.out.println("--------------------");
+        // fromArray
+        List<Integer> list0 = new ArrayList();
+        list0.add(1);
+        list0.add(2);
+        list0.add(3);
+        list0.add(4);
+        Observable.fromArray(list0)
+                .subscribe(s -> System.out.println("onNext 执行，参数：" + s),
+                        throwable -> System.out.println(throwable.getMessage()),
+                        () -> System.out.println("onComplete 执行。"),
+                        disposable -> System.out.println("onSubscribe 执行")
+                );
+        System.out.println("--------------------");
 
         // fromIterable
         List<Integer> list = new ArrayList();
@@ -42,7 +53,7 @@ public class FromDemo {
                         () -> System.out.println("onComplete 执行。"),
                         disposable -> System.out.println("onSubscribe 执行")
                 );
-
+        System.out.println("--------------------");
         // fromFuture
         ExecutorService executorService = Executors.newCachedThreadPool();
         Future<String> future = executorService.submit(new Callable<String>() {
@@ -59,5 +70,6 @@ public class FromDemo {
                         () -> System.out.println(LocalDateTime.now() + " ### " + "onComplete 执行。"),
                         disposable -> System.out.println(LocalDateTime.now() + " ### " + "onSubscribe 执行")
                 );
+        System.out.println("--------------------");
     }
 }
